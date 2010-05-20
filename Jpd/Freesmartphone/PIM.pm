@@ -79,8 +79,8 @@ sub Register_Query {
         print "(Name:$name query $query)/n";
 	return $id;
 
-}
 
+}
 
 1;
 

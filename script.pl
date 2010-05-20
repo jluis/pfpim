@@ -8,17 +8,24 @@ use Net::DBus;
 use Net::DBus::Reactor;
 
 sub catch_all {
-   my $connection = shift;
-   my $message    = shift;
+   my $con = shift;
+   my $msg    = shift;
    say "on catch all";
-   say "Type        ".$message->get_type;
-   say "Interface   ".$message->get_interface;
-   say "Path        ".$message->get_path;
-   say "Name        ".$message->get_destination;
-   say "enviado por ".$message->get_sender;
-   say "id          ".$message->get_serial;
-   say "miembro     ".$message->get_member;
-   say "firma       ".$message->get_signature;
+   say "Type        ".$msg->get_type;
+   say "Interface   ".$msg->get_interface;
+   say "Path        ".$msg->get_path;
+   say "Name        ".$msg->get_destination;
+   say "enviado por ".$msg->get_sender;
+   say "id          ".$msg->get_serial;
+   say "miembro     ".$msg->get_member;
+   say "firma       ".$msg->get_signature;
+   say "waiting ack " unless $msg->get_no_reply();
+   my @arguments = $msg->get_args_list;
+   say "($_)" for @arguments;
+   my $reply = $con->make_method_return_message($msg);
+   $reply->append_args_list(@arguments);
+   $con->send($reply);
+   return 1;
    
 }
 
