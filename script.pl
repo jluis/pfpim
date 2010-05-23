@@ -6,6 +6,7 @@ use warnings;
 
 use Net::DBus;
 use Net::DBus::Reactor;
+use Data::Dumper;
 
 sub catch_all {
    my $con = shift;
@@ -19,9 +20,12 @@ sub catch_all {
    say "id          ".$msg->get_serial;
    say "miembro     ".$msg->get_member;
    say "firma       ".$msg->get_signature;
-   say "waiting ack " unless $msg->get_no_reply();
+   return if $msg->get_no_reply();
+   say "waiting ack ";
    my @arguments = $msg->get_args_list;
    say "($_)" for @arguments;
+   
+   push @arguments,"on catch all";
    my $reply = $con->make_method_return_message($msg);
    $reply->append_args_list(@arguments);
    $con->send($reply);
@@ -39,7 +43,9 @@ use Jpd::Freesmartphone::PIM;
    
    my $player = Jpd::Freesmartphone->new($bus);
    my $object = Jpd::Freesmartphone::PIM->new($player);
-
+   
+   #print Dumper($object);
+   
    Net::DBus::Reactor->main->run;
 
    exit 0;

@@ -52,13 +52,10 @@ Returns a new B<Module::Name> or dies on error.
 sub new {
 	my $class = shift;
 	my $bus   = shift;
-	print "Initialitzed\n";
 	my $self  = $class->SUPER::new($bus,"jpd.freesmartphone.PIM");
-	print "Initialitzed2\n";
 	bless $self, $class;
-	print "Initialitzed3\n";
+#       Contrust here the fallback class	
 #	$self->{manager} = Jpd::Freesmartphone::PIM->new($self);
-	print "Initialitzed4\n";
 	return $self;
 }
 
