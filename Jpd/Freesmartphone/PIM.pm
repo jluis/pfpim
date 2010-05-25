@@ -319,19 +319,24 @@ Updates the fields valule tuples of in $entry_data for $pimobject
 =cut
 
 dbus_method("Update",
-	[["array",["struct","string",["variant"]]]],[],
+	["caller",["array",["struct","string",["variant"]]]],[],
 	'org.freesmartphone.PIM.Entry',
 	{param_names => ["contact_data"]});
 	
 sub Update{
 	my $self = shift;
+	my $client = shift;
 	my $contact_data = shift;
 	#Place holder
 	for my $field (@{$contact_data}) {
 		my ($name,$value) = @{$field};
 		print "updating [$name $value]\n";
 	}
-	#emitir la señal
+	#emitir la señal for Entry
+	$self->emit_signal_in("Updated",'org.freesmartphone.PIM.Entry',$client,$contact_data);
+	#emitir la señal para Entries
+	$self->emit_signal_in("Updated",'org.freesmartphone.PIM.Entries',undef,[$self->get_object_path,$contact_data]);
+	#check if is in a query to send the corresponding signal 
         return ();
         
 }
@@ -346,15 +351,19 @@ Deletes $pimobject
 =cut
 
 dbus_method("Delete",
-	[],[],
+	["caller"],[],
 	'org.freesmartphone.PIM.Entry',
 	{});
 	
 sub Delete{
 	my $self = shift;
-	#Place holder
+	my $client = shift;
 	print "Deleting\n";
-	#emitir la señal
+	#Emit signal to caller
+	$self->emit_signal_in("Deleted",'org.freesmartphone.PIM.Entry',$client);
+	#Emit signal for Entries interface
+	$self->emit_signal_in("Deleted",'org.freesmartphone.PIM.Entries',undef,$self->get_object_path);
+	#code for checking presence on queries
         return ();
 }
 =pod
@@ -366,9 +375,9 @@ Updated($contact_data);
 
 =cut
 
-dbus_signal("Deleted",[],'org.freesmartphone.pim.Entry',{});
+dbus_signal("Deleted",[],'org.freesmartphone.PIM.Entry',{});
 dbus_signal("Updated",[["array",["struct","string",["variant"]]]],
-	'org.freesmartphone.pim.Entry',{});
+	'org.freesmartphone.PIM.Entry',{});
 
 =pod
 
@@ -400,7 +409,11 @@ sub Add{
 		print "$field_name := $value\n";
 	}
 	print "listing types\n";
-        return "me se el camoino";
+	my $path = "me se el camino";
+	#enviamos la senal
+	$self->emit_signal_in("New",'org.freesmartphone.PIM.Entries',undef,$path);
+	#procesar para la query
+        return ($path);
         
 }
 
