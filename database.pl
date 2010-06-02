@@ -61,27 +61,23 @@ sub create_tables {
     );
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS type (
-		type 		TEXT PRIMARY KEY,
-		affinity	TEXT NOT NULL DEFAULT 'TEXT'
+		type 		TEXT PRIMARY KEY ASC,
+		affinity	TEXT NOT NULL,
 		value	 	TEXT DEFAULT NULL);}
 		
     );
-    $dbH-do(
-	q{
-	    BEGIN TRANSACTION;
-		INSERT INTO type VALUES('name','text','A name for an entry Indexed');
-		INSERT INTO type VALUES('phonenumber','phone','A telefon number to be processed');
-		INSERT INTO type VALUES('phone','text','A canonical telefon number INDEXED');
-		INSERT INTO type VALUES('photo','path','a file system path, processed');
-		INSERT INTO type VALUES('path','text','an existing file path');
-		INSERT INTO type VALUES('email','text','email related to an entry');
-		INSERT INTO type VALUES('date','integer','a time stamp');
-		INSERT INTO type VALUES('address','text','an address related to an entry');
-		INSERT INTO type VALUES('boolean','integer','perlish way 0 = false');
-		INSERT INTO type VALUES('number','real','when one need to store a number');
-		INSERT INTO type VALUES('timezone','text',' I think it needs process');
-	    COMMIT;}
-    );
+    $dbh->do(q{INSERT INTO type VALUES('name','text','A name for an entry Indexed');});
+    $dbh->do(q{INSERT INTO type VALUES('phonenumber','phone','A telefon number to be processed');});
+    $dbh->do(q{INSERT INTO type VALUES('phone','text','A canonical telefon number INDEXED');});
+    $dbh->do(q{INSERT INTO type VALUES('photo','path','a file system path, processed');});
+    $dbh->do(q{INSERT INTO type VALUES('path','text','an existing file path');});
+    $dbh->do(q{INSERT INTO type VALUES('email','text','email related to an entry');});
+    $dbh->do(q{INSERT INTO type VALUES('date','integer','a time stamp');});
+    $dbh->do(q{INSERT INTO type VALUES('address','text','an address related to an entry');});
+    $dbh->do(q{INSERT INTO type VALUES('boolean','integer','perlish way 0 = false');});
+    $dbh->do(q{INSERT INTO type VALUES('number','real','when one need to store a number');});
+    $dbh->do(q{INSERT INTO type VALUES('timezone','text',' I think it needs process');});
+    
 	  
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS fields (
@@ -89,37 +85,34 @@ sub create_tables {
 		name 		TEXT NOT NULL UNIQUE,
 		type 		TEXT NOT NULL REFERENCES type (type));}
     );
-    $dbh->do(q{
-        BEGIN TRANSACTION;
-	    INSERT INTO fields VALUES(NULL,'MessageSent','boolean');
-            INSERT INTO fields VALUES(NULL,'Source','text');
-            INSERT INTO fields VALUES(NULL,'Direction','text');
-            INSERT INTO fields VALUES(NULL,'Content','text');
-            INSERT INTO fields VALUES(NULL,'Peer','phonenumber');
-            INSERT INTO fields VALUES(NULL,'MessageRead','boolean');
-	    INSERT INTO fields VALUES(NULL,'Phone','phonenumber');
-            INSERT INTO fields VALUES(NULL,'Surname','name');
-            INSERT INTO fields VALUES(NULL,'Name','name');
-            INSERT INTO fields VALUES(NULL,'Affiliation','text');
-            INSERT INTO fields VALUES(NULL,'Photo','photo');
-            INSERT INTO fields VALUES(NULL,'Work phone','phonenumber');
-            INSERT INTO fields VALUES(NULL,'Note','text');
-            INSERT INTO fields VALUES(NULL,'Email','email');
-            INSERT INTO fields VALUES(NULL,'Birthday','date');
-            INSERT INTO fields VALUES(NULL,'Mobile phone','phonenumber');
-            INSERT INTO fields VALUES(NULL,'Timezone','timezone');
-            INSERT INTO fields VALUES(NULL,'Adrress','address');
-            INSERT INTO fields VALUES(NULL,'Nickname','name');
-            INSERT INTO fields VALUES(NULL,'Home phone','phonenumber');
-	    INSERT INTO fields VALUES(NULL,'Answered','boolean');
-            INSERT INTO fields VALUES(NULL,'Duration','real');
-            INSERT INTO fields VALUES(NULL,'Timestamp','date');
-            INSERT INTO fields VALUES(NULL,'New','boolean');
-            INSERT INTO fields VALUES(NULL,'Line','integer');
-            INSERT INTO fields VALUES(NULL,'Timezone','timezone');
-            INSERT INTO fields VALUES(NULL,'Type','text');
-	COMMIT;}
-    );
+    
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'MessageSent','boolean');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Source','text');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Direction','text');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Content','text');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Peer','phonenumber');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'MessageRead','boolean');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Phone','phonenumber');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Surname','name');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Name','name');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Affiliation','text');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Photo','photo');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Work phone','phonenumber');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Note','text');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Email','email');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Birthday','date');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Mobile phone','phonenumber');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Timezone','timezone');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Adrress','address');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Nickname','name');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Home phone','phonenumber');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Answered','boolean');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Duration','real');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Timestamp','date');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'New','boolean');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Line','integer');});
+    $dbh->do(q{INSERT INTO fields VALUES(NULL,'Type','text');});
+
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS domain_fields (
 		field_domain_id INTEGER PRIMARY KEY AUTOINCREMENT,
