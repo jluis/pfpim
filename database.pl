@@ -4,6 +4,21 @@ use DBI;
 
 my $dbh = DBI->connect( "dbi:SQLite:dbname=test", "", "" );
 
+#I'm using this file as a brainstorming editor
+#
+
+=pod
+
+=head1 Descrition
+
+my @sqlite_Afinity = qw(integer text blob real);
+my %types = ("name"=>["Process","COLLATE","INDEX","description"];...
+
+=cut
+
+
+
+
 sub create_tables {
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS entry (
@@ -47,13 +62,63 @@ sub create_tables {
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS type (
 		type 		TEXT PRIMARY KEY,
+		affinity	TEXT NOT NULL DEFAULT 'TEXT'
 		value	 	TEXT DEFAULT NULL);}
+		
     );
+    $dbH-do(
+	q{
+	    BEGIN TRANSACTION;
+		INSERT INTO type VALUES('name','text','A name for an entry Indexed');
+		INSERT INTO type VALUES('phonenumber','phone','A telefon number to be processed');
+		INSERT INTO type VALUES('phone','text','A canonical telefon number INDEXED');
+		INSERT INTO type VALUES('photo','path','a file system path, processed');
+		INSERT INTO type VALUES('path','text','an existing file path');
+		INSERT INTO type VALUES('email','text','email related to an entry');
+		INSERT INTO type VALUES('date','integer','a time stamp');
+		INSERT INTO type VALUES('address','text','an address related to an entry');
+		INSERT INTO type VALUES('boolean','integer','perlish way 0 = false');
+		INSERT INTO type VALUES('number','real','when one need to store a number');
+		INSERT INTO type VALUES('timezone','text',' I think it needs process');
+	    COMMIT;}
+    );
+	  
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS fields (
 		field_id 	INTEGER PRIMARY KEY AUTOINCREMENT,
 		name 		TEXT NOT NULL UNIQUE,
 		type 		TEXT NOT NULL REFERENCES type (type));}
+    );
+    $dbh->do(q{
+        BEGIN TRANSACTION;
+	    INSERT INTO fields VALUES(NULL,'MessageSent','boolean');
+            INSERT INTO fields VALUES(NULL,'Source','text');
+            INSERT INTO fields VALUES(NULL,'Direction','text');
+            INSERT INTO fields VALUES(NULL,'Content','text');
+            INSERT INTO fields VALUES(NULL,'Peer','phonenumber');
+            INSERT INTO fields VALUES(NULL,'MessageRead','boolean');
+	    INSERT INTO fields VALUES(NULL,'Phone','phonenumber');
+            INSERT INTO fields VALUES(NULL,'Surname','name');
+            INSERT INTO fields VALUES(NULL,'Name','name');
+            INSERT INTO fields VALUES(NULL,'Affiliation','text');
+            INSERT INTO fields VALUES(NULL,'Photo','photo');
+            INSERT INTO fields VALUES(NULL,'Work phone','phonenumber');
+            INSERT INTO fields VALUES(NULL,'Note','text');
+            INSERT INTO fields VALUES(NULL,'Email','email');
+            INSERT INTO fields VALUES(NULL,'Birthday','date');
+            INSERT INTO fields VALUES(NULL,'Mobile phone','phonenumber');
+            INSERT INTO fields VALUES(NULL,'Timezone','timezone');
+            INSERT INTO fields VALUES(NULL,'Adrress','address');
+            INSERT INTO fields VALUES(NULL,'Nickname','name');
+            INSERT INTO fields VALUES(NULL,'Home phone','phonenumber');
+	    INSERT INTO fields VALUES(NULL,'Answered','boolean');
+            INSERT INTO fields VALUES(NULL,'Duration','real');
+            INSERT INTO fields VALUES(NULL,'Timestamp','date');
+            INSERT INTO fields VALUES(NULL,'New','boolean');
+            INSERT INTO fields VALUES(NULL,'Line','integer');
+            INSERT INTO fields VALUES(NULL,'Timezone','timezone');
+            INSERT INTO fields VALUES(NULL,'Type','text');
+	COMMIT;}
     );
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS domain_fields (
