@@ -36,19 +36,19 @@ sub create_tables {
 		name 		TEXT NOT NULL UNIQUE,
 		value 		TEXT DEFAULT NULL);}
         );
-        $dbh->do(q{BEGIN TRANSACTION;});
+        $dbh->begin_work;
         $dbh->do(q{INSERT INTO domain VALUES(NULL,'contacts','All kinds of contact requires a name');});
         $dbh->do(q{INSERT INTO domain VALUES(NULL,'calls','Call log');});
         $dbh->do(q{INSERT INTO domain VALUES(NULL,'messages','SMS storage & log');});
         $dbh->do(q{INSERT INTO domain VALUES(NULL,'dates','dates storge');});
-        $dbh->do(q{INSERT INTO domain VALUES(NULL,'task','task storge');});
-        $dbh->do(q{INSERT INTO domain VALUES(NULL,'Notes','task storage');});
-        $dbh->do(q{END TRANSACTION;});
+        $dbh->do(q{INSERT INTO domain VALUES(NULL,'tasks','task storge');});
+        $dbh->do(q{INSERT INTO domain VALUES(NULL,'notes','task storage');});
+        $dbh->commit;
     };
     $sth = $dbh->prepare_cached('SELECT "name","domain_id" from "domain";');
     $sth -> execute;
     my $domain_id = $sth->fetchall_hashref("name");
-    print Dumper($domain_id);
+    $domain_id->{$_} = $domain_id->{$_}->{domain_id} for keys(%{$domain_id});
     
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS tag (
@@ -74,8 +74,7 @@ sub create_tables {
     )unless defined $tables->{taged_entries};
     $dbh->do(
         q{CREATE TABLE IF NOT EXISTS domain_entries (
-		domain_entry_id INTEGER PRIMARY KEY AUTOINCREMENT,
-		id 		INTEGER NOT NULL REFERENCES entry (id) UNIQUE,
+		id              INTEGER PRIMARY KEY REFERENCES entry (id),
 		domain_id 	INTEGER NOT NULL REFERENCES domain (domain_id));}
     ) unless defined $tables->{domain_entries};
 
@@ -86,7 +85,8 @@ sub create_tables {
 		affinity	TEXT NOT NULL,
 		value	 	TEXT DEFAULT NULL);}
         );
-        $dbh->do(q{BEGIN TRANSACTION;});
+        
+        $dbh->begin_work;
         $dbh->do(q{INSERT INTO type VALUES('text','text','Sqlite TEXT affinity');});
         $dbh->do(q{INSERT INTO type VALUES('integer','integer','Sqlite INTEGER affinity');});
         $dbh->do(q{INSERT INTO type VALUES('real','real','Sqlite REAL affinity');});
@@ -103,7 +103,7 @@ sub create_tables {
         $dbh->do(q{INSERT INTO type VALUES('boolean','integer','perlish way 0 = false');});
         $dbh->do(q{INSERT INTO type VALUES('number','numeric','when one need to store a number');});
         $dbh->do(q{INSERT INTO type VALUES('timezone','text',' I think it needs process');});
-         $dbh->do(q{END TRANSACTION;});
+        $dbh->commit;
     };
     
     if (not defined $tables->{fields}) {
@@ -113,7 +113,7 @@ sub create_tables {
 		name 		TEXT NOT NULL UNIQUE,
 		type 		TEXT NOT NULL REFERENCES type (type));}
         );
-        $dbh->do(q{BEGIN TRANSACTION;});
+        $dbh->begin_work;
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'MessageSent','boolean');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Source','text');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Direction','text');});
@@ -131,7 +131,7 @@ sub create_tables {
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Birthday','date');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Mobile phone','phonenumber');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Timezone','timezone');});
-        $dbh->do(q{INSERT INTO fields VALUES(NULL,'Adrress','address');});
+        $dbh->do(q{INSERT INTO fields VALUES(NULL,'Address','address');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Nickname','name');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Home phone','phonenumber');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Answered','boolean');});
@@ -140,12 +140,17 @@ sub create_tables {
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'New','boolean');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Line','integer');});
         $dbh->do(q{INSERT INTO fields VALUES(NULL,'Type','text');});
-        $dbh->do(q{END TRANSACTION;});
+        $dbh->do(q{INSERT INTO fields VALUES(NULL,'Start','date');});
+        $dbh->do(q{INSERT INTO fields VALUES(NULL,'End','date');});
+        $dbh->do(q{INSERT INTO fields VALUES(NULL,'Message','text');});
+        $dbh->do(q{INSERT INTO fields VALUES(NULL,'Title','name');});
+        $dbh->commit;
     };
     $sth = $dbh->prepare_cached('SELECT "name","field_id" from "fields";');
     $sth -> execute;
     my $field_id = $sth->fetchall_hashref("name");
-    print Dumper($field_id);
+    $field_id->{$_} = $field_id->{$_}->{field_id} for keys(%{$field_id});
+    #print Dumper($field_id);
     
     if (not defined $tables->{domain_fields}) {
         $dbh->do(
@@ -153,22 +158,35 @@ sub create_tables {
 		field_domain_id INTEGER PRIMARY KEY AUTOINCREMENT,
 		domain_id 	INTEGER NOT NULL REFERENCES domain (domain_id),
 		field_id 	INTEGER NOT NULL  DEFAULT NULL REFERENCES fields (field_id),
-		grup		TEXT DEFAULT NULL);}
+		block		TEXT DEFAULT NULL);}
         );
-        my $sth -> $dbh -> prepare_cached(q{INSERT INTO domain_fields VALUES(NULL,?,?,?);});
-        $dbh->do(q{BEGIN TRANSACTION;});
-        $sth-> execute($domain_id->{contacts},$field_id->{Surame},"name");
+        $sth = $dbh -> prepare_cached(q{INSERT INTO domain_fields VALUES(NULL,?,?,?);});
+        $dbh->begin_work;
+        $sth-> execute($domain_id->{contacts},$field_id->{Surname},"name");
         $sth-> execute($domain_id->{contacts},$field_id->{Name},"name");
         $sth-> execute($domain_id->{contacts},$field_id->{Nickname},"name");
         $sth-> execute($domain_id->{contacts},$field_id->{Phone},"address");
-        $sth-> execute($domain_id->{contacts},$field_id->{Home phone},"address");
-        $sth-> execute($domain_id->{contacts},$field_id->{Mobile phone},"address");
-        $sth-> execute($domain_id->{contacts},$field_id->{Work phone},"address");
+        $sth-> execute($domain_id->{contacts},$field_id->{'Home phone'},"address");
+        $sth-> execute($domain_id->{contacts},$field_id->{'Mobile phone'},"address");
+        $sth-> execute($domain_id->{contacts},$field_id->{'Work phone'},"address");
         $sth-> execute($domain_id->{contacts},$field_id->{Email},"address");
         $sth-> execute($domain_id->{contacts},$field_id->{Address},"address");
-        $sth-> execute($domain_id->{calls},$field_id->{Peer},"");
-        $sth-> execute($domain_id->{messages},$field_id->{Peer},"name");
-        $dbh->do(q{END TRANSACTION;});
+        $sth-> execute($domain_id->{calls},$field_id->{Peer},"phone");
+        $sth-> execute($domain_id->{calls},$field_id->{Timestamp},"date");
+        $sth-> execute($domain_id->{calls},$field_id->{Direction},"in/out");
+        $sth-> execute($domain_id->{messages},$field_id->{Timestamp},"date");
+        $sth-> execute($domain_id->{messages},$field_id->{Direction},"in/out");
+        $sth-> execute($domain_id->{messages},$field_id->{Peer},"phone");
+        $sth-> execute($domain_id->{messages},$field_id->{Content},"message");
+        $sth-> execute($domain_id->{dates},$field_id->{Start},"begin of date");
+        $sth-> execute($domain_id->{dates},$field_id->{End},"end of date");
+        $sth-> execute($domain_id->{dates},$field_id->{Message},"text for the date");
+        $sth-> execute($domain_id->{tasks},$field_id->{Start},"date");
+        $sth-> execute($domain_id->{tasks},$field_id->{Title},"text");
+        $sth-> execute($domain_id->{tasks},$field_id->{Content},"text");
+        $sth-> execute($domain_id->{notes},$field_id->{Title},"name");
+        $sth-> execute($domain_id->{notes},$field_id->{Content},"text");
+        $dbh->commit;
     };
     
     $dbh->do(
