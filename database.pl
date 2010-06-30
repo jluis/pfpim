@@ -76,7 +76,23 @@ s/^${NP}/\+${CC}/; == substitute NP with "+"<CC>
 s/^\([^\+]\)/\+${CC}${AC}\1/" == process local numbers (no "+", IP, NP)
 
 
+From wikipedia phone numbers up to 15 digits excuding prefixes E.164
 
+cc      Coutry code                     d{1,3}  but in global services & networks and grups 
+                                                of countries is always 3digits
+
+x       Identification code             d{1,4}  
+
+gic     Grup Identification code        d
+
+ac      area code                       d{3} in USA Canada (northamerica plan)
+                                        d{2} Brazil
+                                        d{1} New Zelland
+                                        d{2,5} Germany, Argentina, United Kingdom Austria.
+                                        d{1,5} Japan,
+                                        d{1,2} Syria,Peru
+                                        d{0}
+ln      local number
 
 
 
